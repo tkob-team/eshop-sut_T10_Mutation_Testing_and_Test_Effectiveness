@@ -1,0 +1,35 @@
+# Root .gitignore for the EShop SUT repo.
+# frontend-web/ and frontend-mobile/ keep their own .gitignore files.
+
+# Dependencies
+node_modules/
+
+# Root has no package.json; a lockfile here is created by running npm in the wrong folder
+/package-lock.json
+
+# StrykerJS: sandbox, reports, incremental file, log
+.stryker-tmp/
+reports/
+stryker.log
+
+# Jest coverage
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local environment
+.env
+.env.*
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# NOTE: backend/database.sqlite is already tracked, so ignoring it here has no effect.
+# The server drops and re-seeds it on every start. Restore it after runs with
+#   git restore backend/database.sqlite
+# Whether to untrack it or use a separate test DB is a team decision (S3-D04).
