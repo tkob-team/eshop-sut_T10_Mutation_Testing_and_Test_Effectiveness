@@ -1,4 +1,5 @@
 const h = require('../helpers/coupons');
+const scenarios = require('../helpers/coupons-scenarios');
 let app, db, admin, token;
 beforeAll(async () => { ({ app, db } = await h.loadApp()); });
 beforeEach(async () => {
@@ -40,4 +41,24 @@ test('MF-03 usage 3 meets configured limit 3 and is refused (FR-09 C5)', async (
   expect(refused.status).toBe(400); // shared HTTP convention, not an exact SRS code
   expect(refused.body).not.toHaveProperty('discount_amount');
   expect(await h.count(db,'coupon_usage')).toBe(3);
+});
+
+test('MF-04 the requested code selects its own coupon and discount (FR-09 C1)', async () => {
+  await scenarios.selectCorrectCoupon(app, admin, token);
+});
+
+test.each([[399999, false], [400001, true]])(
+  'MF-05 admin-created minimum 400000 controls total %i (FR-17, FR-09 C3)', async (total, allowed) => {
+    await scenarios.enforceCreatedMinimum(app, admin, token, total, allowed);
+  });
+
+test.each([
+  ['2026-10-24T08:59:59.999Z', true],
+  ['2026-10-24T09:00:00.001Z', false],
+])('MF-06 admin-created expiry controls quote at %s (FR-17, FR-09 C2)', async (instant, allowed) => {
+  await scenarios.enforceCreatedExpiry(app, admin, instant, allowed);
+});
+
+test('MF-07 recording usage affects only that user and coupon (FR-09 C5)', async () => {
+  await scenarios.isolateRecordedUsage(app, admin, token);
 });
