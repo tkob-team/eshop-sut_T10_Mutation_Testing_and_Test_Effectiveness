@@ -1,6 +1,6 @@
 // S3-F01 — Cart & Orders, manual assertions.
 // Tấn Hiệp tự viết (integrity rule: AI không viết assertion, input hay expected cho nhánh này).
-// Expected results lấy từ README.md (SRS) và api_specification.md; dẫn FR/§ và mutant mục tiêu cho từng test.
+// Expected results lấy từ README.md (SRS) và api_specification.md; dẫn FR/§ và mutant mục tiêu cho từng test. Một số chuỗi message/error lấy từ server.js vì spec không quy định; xem cột oracle trong Experiment Log.
 // Mọi test ở file này phải PASS trên code gốc.
 const { ADMIN, loadApp, login, newUser, bearer, createOrder, orderStatus, get, request } = require('../helpers/app');
 
@@ -18,7 +18,7 @@ describe('Cart & Orders Manual Tests - Tấn Hiệp', () => {
   /**
    * Survivor 3
    * Route: PUT /api/orders/:id/cancel
-   * Spec Reference: README.md § FR-10 & api_specification.md § 6.2
+   * Spec Reference: README.md § FR-10 & api_specification.md §4.6,
    * Target Code: server.js:318-337 (Cancel order)
    * Goal: Kill mutant không cập nhật status thành 'canceled' trong DB hoặc bỏ qua bước UPDATE.
    */
