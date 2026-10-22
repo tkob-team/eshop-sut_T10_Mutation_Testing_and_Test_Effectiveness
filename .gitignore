@@ -34,3 +34,6 @@ Thumbs.db
 # The server drops and re-seeds it on every start. Restore it after runs with
 #   git restore backend/database.sqlite
 # Whether to untrack it or use a separate test DB is a team decision (S3-D04).
+
+# Visible sandbox for Jest/Stryker on Windows
+stryker-tmp/

@@ -4,8 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "test:defects": "jest --testMatch \"**/test/defects/*.defects.js\"",
+    "test": "jest --runInBand",
+    "test:coupons": "jest --runInBand --runTestsByPath test/coupons.test.js",
+    "test:defects": "jest --config jest.defects.config.cjs --runInBand",
+    "coupons:dry": "stryker run stryker.coupons.config.json --dryRunOnly",
+    "tutorial:weak": "jest --config tutorial/jest.weak.config.cjs --runInBand",
+    "tutorial:ai": "jest --config tutorial/jest.ai.config.cjs --runInBand",
+    "tutorial:mutate:weak": "stryker run tutorial/stryker.weak.config.json",
+    "tutorial:mutate:ai": "stryker run tutorial/stryker.ai.config.json",
     "mutate:cart-orders": "stryker run stryker.cart-orders.config.json"
   },
   "keywords": [],
@@ -31,7 +37,13 @@
       "<rootDir>/test/helpers/isolate.js"
     ],
     "testMatch": [
-      "<rootDir>/test/**/*.test.js"
+      "<rootDir>/test/*.test.js"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/stryker-tmp/"
     ]
+  },
+  "allowScripts": {
+    "sqlite3@6.0.1": true
   }
 }
