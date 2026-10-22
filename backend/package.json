@@ -6,7 +6,9 @@
   "scripts": {
     "test": "jest",
     "test:defects": "jest --testMatch \"**/test/defects/*.defects.js\"",
-    "mutate:cart-orders": "stryker run stryker.cart-orders.config.json"
+    "mutate:cart-orders": "stryker run stryker.cart-orders.config.json",
+    "test:ai": "jest --config jest.ai.config.js",
+    "mutate:cart-orders:ai": "stryker run stryker.cart-orders.ai.config.json"
   },
   "keywords": [],
   "author": "",
