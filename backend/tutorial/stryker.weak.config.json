@@ -1,0 +1,25 @@
+{
+  "$schema": "../node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "jest",
+  "coverageAnalysis": "perTest",
+  "mutate": [
+    "tutorial/eligibility.js"
+  ],
+  "jest": {
+    "configFile": "tutorial/jest.weak.config.cjs"
+  },
+  "tempDirName": "stryker-tmp",
+  "concurrency": 1,
+  "reporters": [
+    "clear-text",
+    "html",
+    "json"
+  ],
+  "htmlReporter": {
+    "fileName": "reports/tutorial-weak/mutation.html"
+  },
+  "jsonReporter": {
+    "fileName": "reports/tutorial-weak/mutation.json"
+  }
+}
+
