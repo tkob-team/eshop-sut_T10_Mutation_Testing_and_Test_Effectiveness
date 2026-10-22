@@ -9,6 +9,7 @@ node_modules/
 
 # StrykerJS: sandbox, reports, incremental file, log
 .stryker-tmp/
+stryker-tmp/
 reports/
 stryker.log
 
