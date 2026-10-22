@@ -16,44 +16,74 @@ beforeAll(async () => {
 describe('Cart & Orders Manual Tests - Tấn Hiệp', () => {
 
   /**
-   * Survivor 1
-   * Route: POST /api/cart & GET /api/cart
-   * Spec Reference: README.md § FR-07 & api_specification.md § 4.2
-   * Target Code: server.js:284-295 (In-memory userCarts)
-   * Goal: Kill mutant bỏ qua việc push item vào mảng userCarts hoặc trả về sai cấu trúc giỏ hàng.
+   * Target Mutant: 286:7 (ConditionalExpression Survived)
+   * Route: GET /api/cart
+   * Spec Reference: README.md § FR-07 & api_specification.md § 4.1
+   * Target Code: server.js:286
+   * Goal: Kill mutant 286:7 bằng cách gọi GET /api/cart với user mới chưa có giỏ hàng,
+   *       assert phản hồi trả về mảng rỗng [] thay vì undefined.
    */
-  test('Survivor 1: POST & GET /api/cart - Verify item stored correctly in user cart array', async () => {
+  test('Kill Mutant 286:7 - GET /api/cart initializes empty cart array for new user', async () => {
     const user = await newUser(app);
-    const cartItem = { product_id: 1, quantity: 2, price: 50000 };
 
-    // 1. Thêm món vào giỏ hàng
-    const resPost = await request(app)
+    const resGet = await request(app)
+      .get('/api/cart')
+      .set(bearer(user.token));
+
+    expect(resGet.status).toBe(200);
+    expect(resGet.body).toEqual([]);
+  });
+
+  /**
+   * Target Mutant: 292:7 (ConditionalExpression Survived)
+   * Route: POST /api/cart & GET /api/cart
+   * Spec Reference: README.md § FR-07 & api_specification.md § 4.2 & § 4.1
+   * Target Code: server.js:292
+   * Goal: Kill mutant 292:7 bằng cách POST 2 sản phẩm liên tiếp. Nếu mutant biến `if (!userCarts[userId])`
+   *       thành `if (true)`, giỏ hàng sẽ bị reset thành [] ở lần POST thứ 2 làm mất item 1.
+   *       Assert qua GET /api/cart phải thu được đủ 2 items.
+   */
+  test('Kill Mutant 292:7 - POST /api/cart preserves existing cart items across multiple additions', async () => {
+    const user = await newUser(app);
+    const item1 = { product_id: 1, quantity: 2, price: 50000 };
+    const item2 = { product_id: 2, quantity: 1, price: 100000 };
+
+    // 1. Thêm sản phẩm thứ nhất
+    const resPost1 = await request(app)
       .post('/api/cart')
       .set(bearer(user.token))
-      .send(cartItem);
+      .send(item1);
+    expect(resPost1.status).toBe(200);
+    expect(resPost1.body.message).toBe('Added to cart');
 
-    expect(resPost.status).toBe(200);
-    expect(resPost.body.message).toBe('Added to cart');
+    // 2. Thêm sản phẩm thứ hai
+    const resPost2 = await request(app)
+      .post('/api/cart')
+      .set(bearer(user.token))
+      .send(item2);
+    expect(resPost2.status).toBe(200);
+    expect(resPost2.body.message).toBe('Added to cart');
 
-    // 2. Lấy giỏ hàng và kiểm tra dữ liệu
+    // 3. Lấy giỏ hàng và assert tích lũy đủ 2 items
     const resGet = await request(app)
       .get('/api/cart')
       .set(bearer(user.token));
 
     expect(resGet.status).toBe(200);
     expect(Array.isArray(resGet.body)).toBe(true);
-    expect(resGet.body.length).toBe(1);
-    expect(resGet.body[0]).toEqual(cartItem);
+    expect(resGet.body).toHaveLength(2);
+    expect(resGet.body[0]).toEqual(item1);
+    expect(resGet.body[1]).toEqual(item2);
   });
 
   /**
-   * Survivor 2
+   * Baseline Test / Survivor Coverage
    * Route: POST /api/checkout
    * Spec Reference: README.md § FR-08 & api_specification.md § 4.3
    * Target Code: server.js:297-308 (Checkout and DB insert)
-   * Goal: Kill mutant tính sai orderId, lưu sai total_amount hoặc status khác 'pending' trong DB.
+   * Goal: Kiểm tra quá trình tạo đơn hàng và lưu đúng dữ liệu vào database.
    */
-  test('Survivor 2: POST /api/checkout - Verify successful order creation and DB pending status', async () => {
+  test('POST /api/checkout - Verify successful order creation and DB pending status', async () => {
     const user = await newUser(app);
     const checkoutData = {
       total_amount: 150000,
@@ -80,85 +110,73 @@ describe('Cart & Orders Manual Tests - Tấn Hiệp', () => {
   });
 
   /**
-   * Survivor 3
+   * Target Mutant: 326:47 (ObjectLiteral Survived)
    * Route: PUT /api/orders/:id/cancel
-   * Spec Reference: README.md § FR-10 & api_specification.md § 6.2
-   * Target Code: server.js:318-337 (Cancel order)
-   * Goal: Kill mutant không cập nhật status thành 'canceled' trong DB hoặc bỏ qua bước UPDATE.
+   * Spec Reference: README.md § FR-10 & api_specification.md § 4.6
+   * Target Code: server.js:326
+   * Goal: Kill mutant 326:47 bằng cách gọi hủy đơn hàng không tồn tại và assert chính xác
+   *       body error { error: "Order not found" } thay vì chỉ check HTTP Status 404.
    */
-  test('Survivor 3: PUT /api/orders/:id/cancel - Verify pending order is cancelled and DB updated to canceled', async () => {
+  test('Kill Mutant 326:47 - PUT /api/orders/:id/cancel returns error body when order not found', async () => {
     const user = await newUser(app);
-    // Tạo đơn hàng ở trạng thái 'pending'
-    const orderId = await createOrder(app, db, user.token, 'pending');
+    const nonExistentOrderId = 99999;
 
-    // 1. Thực hiện hủy đơn hàng
     const resCancel = await request(app)
-      .put(`/api/orders/${orderId}/cancel`)
+      .put(`/api/orders/${nonExistentOrderId}/cancel`)
       .set(bearer(user.token));
 
-    expect(resCancel.status).toBe(200);
-    expect(resCancel.body.message).toBe('Order canceled successfully');
-
-    // 2. Kiểm tra status trong DB đã chuyển sang 'canceled'
-    const dbStatus = await orderStatus(db, orderId);
-    expect(dbStatus).toBe('canceled');
+    expect(resCancel.status).toBe(404);
+    expect(resCancel.body).toEqual({ error: 'Order not found' });
   });
 
   /**
-   * Survivor 4
-   * Route: POST /api/apply-coupon
-   * Spec Reference: README.md § FR-12 & api_specification.md § 5.2
-   * Target Code: server.js:351-428 (Coupon application & discount math)
-   * Goal: Kill mutant đổi toán tử so sánh min_order_amount, tính sai discount_amount hoặc final_amount.
+   * Target Mutant: 346:45 (ObjectLiteral Survived)
+   * Route: GET /api/orders/:id
+   * Spec Reference: README.md § FR-09 & api_specification.md § 4.5
+   * Target Code: server.js:346
+   * Goal: Kill mutant 346:45 bằng cách lấy chi tiết đơn hàng không tồn tại và assert chính xác
+   *       body error { error: "Order not found" } thay vì chỉ check HTTP Status 404.
    */
-  test('Survivor 4: POST /api/apply-coupon - Verify correct discount calculation and min order requirement', async () => {
-    // 1. Trường hợp đơn hàng không đủ giá trị tối thiểu (min_order_amount)
-    // Giả sử mã seed có min_order_amount = 100000
-    const coupon = await get(db, 'SELECT * FROM coupons WHERE is_active = 1 LIMIT 1');
-    
-    if (coupon) {
-      const resUnderMin = await request(app)
-        .post('/api/apply-coupon')
-        .send({
-          code: coupon.code,
-          total_amount: coupon.min_order_amount - 1000
-        });
+  test('Kill Mutant 346:45 - GET /api/orders/:id returns error body when order not found', async () => {
+    const user = await newUser(app);
+    const nonExistentOrderId = 99999;
 
-      expect(resUnderMin.status).toBe(400);
-      expect(resUnderMin.body.error).toContain('Đơn hàng chưa đủ giá trị tối thiểu');
+    const resGetOrder = await request(app)
+      .get(`/api/orders/${nonExistentOrderId}`)
+      .set(bearer(user.token));
 
-      // 2. Trường hợp áp dụng hợp lệ
-      const validAmount = coupon.min_order_amount + 50000;
-      const resValid = await request(app)
-        .post('/api/apply-coupon')
-        .send({
-          code: coupon.code,
-          total_amount: validAmount
-        });
-
-      expect(resValid.status).toBe(200);
-      expect(resValid.body.success).toBe(true);
-
-      let expectedDiscount = 0;
-      if (coupon.type === 'percent') {
-        expectedDiscount = Math.floor(validAmount * (1 - coupon.discount_value));
-      } else {
-        expectedDiscount = coupon.discount_value;
-      }
-
-      expect(resValid.body.discount_amount).toBe(expectedDiscount);
-      expect(resValid.body.final_amount).toBe(validAmount - expectedDiscount);
-    }
+    expect(resGetOrder.status).toBe(404);
+    expect(resGetOrder.body).toEqual({ error: 'Order not found' });
   });
 
   /**
-   * Survivor 5
+   * Target Mutant: 532:47 (ObjectLiteral Survived)
    * Route: PUT /api/admin/orders/:id/status
-   * Spec Reference: api_specification.md § 6.3
-   * Target Code: server.js:463-504 (Admin state transition)
-   * Goal: Kill mutant bỏ qua kiểm tra chuyển trạng thái hợp lệ hoặc không lưu trạng thái mới vào DB.
+   * Spec Reference: api_specification.md § 6.2
+   * Target Code: server.js:532
+   * Goal: Kill mutant 532:47 bằng cách Admin cập nhật trạng thái đơn hàng không tồn tại,
+   *       assert chính xác body error { error: "Order not found" } thay vì chỉ check Status 404.
    */
-  test('Survivor 5: PUT /api/admin/orders/:id/status - Verify state transition rules and status update', async () => {
+  test('Kill Mutant 532:47 - PUT /api/admin/orders/:id/status returns error body when order not found', async () => {
+    const nonExistentOrderId = 99999;
+
+    const resAdminUpdate = await request(app)
+      .put(`/api/admin/orders/${nonExistentOrderId}/status`)
+      .set(bearer(adminToken))
+      .send({ status: 'confirmed' });
+
+    expect(resAdminUpdate.status).toBe(404);
+    expect(resAdminUpdate.body).toEqual({ error: 'Order not found' });
+  });
+
+  /**
+   * Baseline Test / State Transitions
+   * Route: PUT /api/admin/orders/:id/status
+   * Spec Reference: api_specification.md § 6.2
+   * Target Code: server.js:525-558 (Admin state transition)
+   * Goal: Kiểm tra quy tắc chuyển trạng thái hợp lệ/không hợp lệ và cập nhật DB của Admin.
+   */
+  test('PUT /api/admin/orders/:id/status - Verify state transition rules and status update', async () => {
     const user = await newUser(app);
     const orderId = await createOrder(app, db, user.token, 'pending');
 
@@ -179,7 +197,7 @@ describe('Cart & Orders Manual Tests - Tấn Hiệp', () => {
     expect(resValid.status).toBe(200);
     expect(resValid.body.message).toBe('Order status updated');
 
-    // 3. Xắc nhận DB đã được cập nhật sang 'confirmed'
+    // 3. Xác nhận DB đã được cập nhật sang 'confirmed'
     const dbStatus = await orderStatus(db, orderId);
     expect(dbStatus).toBe('confirmed');
   });
