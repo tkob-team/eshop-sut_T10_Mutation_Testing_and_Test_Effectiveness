@@ -1,5 +1,5 @@
-// S3-G01 — Cart & Orders, AI Agent assertions (đã review).
-// Sinh trong session sạch, không thấy nhánh manual (s3/F01-manual) hay kết quả F01.
+// S3-G01 — Cart & Orders, AI Agent assertions.
+// Sinh bởi Claude Code (claude-opus-5-5) ở G01-1-cc; session blind một phần (lộ 2 subject commit F01, xem G01-cc-REPORT.md).
 // Prompt và output nguyên văn ghi ở AI Record; expected results theo README.md (SRS) và api_specification.md.
 // Mọi test ở file này phải PASS trên code gốc.
 const { ADMIN, loadApp, login, newUser, bearer, createOrder, orderStatus, get, request } = require('../helpers/app');
@@ -13,14 +13,8 @@ beforeAll(async () => {
   adminToken = await login(app, ADMIN);
 });
 
-// AI assertions đã review đặt ở đây.
-
-// ---------------------------------------------------------------------------
-// G01-1-cc — raw AI assertions (Claude Code, claude-opus-5-5), CHƯA review.
-// Mục tiêu: 6 mutant Survived của E01-1-cc trong server.js. Mutant 550:11
-// ConditionalExpression → false KHÔNG có test (xem G01-cc-REPORT.md): muốn kill nó
-// phải assert canceled → delivered = 200, trái FR-10 (canceled là trạng thái kết thúc).
-// ---------------------------------------------------------------------------
+// Spec review 2026-10-23 (Tấn Hiệp + phiên thảo luận): giữ 5/5 test, không sửa assertion;
+// oracle một phần lấy từ code (dạng [], trường error) đã ghi ở từng test; 550:11 không viết (defect-fixing).
 
 const itemA = { id: 1, name: 'iPhone 15 Pro Max', price: 30000000, quantity: 2 };
 const itemB = { id: 4, name: 'Tai nghe AirPods Pro 2', price: 6000000, quantity: 1 };
