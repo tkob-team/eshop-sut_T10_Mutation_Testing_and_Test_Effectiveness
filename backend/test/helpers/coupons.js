@@ -1,5 +1,4 @@
 // Test-only fixtures. Real SQLite and SUT SQL; no production edits.
-// Reuse D01 isolation/app loader at 8d60e9b. Time alone is faked.
 const { loadApp, login, ADMIN, bearer, request, get } = require('./app');
 const NOW = '2026-10-22T12:00:00.000Z';
 const EXPIRY = '2026-10-23T12:00:00.000Z';

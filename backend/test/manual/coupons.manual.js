@@ -1,6 +1,3 @@
-// F02 spec-analysis draft, written with Codex assistance at the user's request.
-// Hòa's human review is Pending. This is NOT independent human-authored manual work.
-// FR-17 preserves a valid admin limit; FR-09 C5 permits usage < limit, refuses >= limit.
 const h = require('../helpers/coupons');
 let app, db, admin, token;
 beforeAll(async () => { ({ app, db } = await h.loadApp()); });
