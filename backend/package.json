@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --runInBand",
-    "test:coupons": "jest --runInBand --runTestsByPath test/coupons.test.js",
+    "test:coupons": "jest --selectProjects cart-coupons --runInBand --runTestsByPath test/coupons.test.js test/coupons-flow.test.js",
     "test:defects": "jest --config jest.defects.config.cjs --runInBand",
     "coupons:dry": "stryker run stryker.coupons.config.json --dryRunOnly",
     "tutorial:weak": "jest --config tutorial/jest.weak.config.cjs --runInBand",
@@ -14,7 +14,12 @@
     "tutorial:mutate:ai": "stryker run tutorial/stryker.ai.config.json",
     "mutate:cart-orders": "stryker run stryker.cart-orders.config.json",
     "test:auth": "jest --config jest.auth.config.cjs --runInBand",
-    "test:defects:auth": "jest --config jest.auth-defects.config.cjs --runInBand"
+    "test:defects:auth": "jest --config jest.auth-defects.config.cjs --runInBand",
+    "test:cart-orders": "jest --selectProjects cart-coupons --runInBand --runTestsByPath test/cart-orders.test.js",
+    "mutate:coupons": "stryker run stryker.coupons.config.json",
+    "mutate:auth": "stryker run stryker.auth.config.json",
+    "tutorial:strong": "jest --config tutorial/jest.strong.config.cjs --runInBand",
+    "tutorial:mutate:strong": "stryker run tutorial/stryker.strong.config.json"
   },
   "keywords": [],
   "author": "",
@@ -42,7 +47,8 @@
         ],
         "testMatch": [
           "<rootDir>/test/cart-orders.test.js",
-          "<rootDir>/test/coupons.test.js"
+          "<rootDir>/test/coupons.test.js",
+          "<rootDir>/test/coupons-flow.test.js"
         ],
         "modulePathIgnorePatterns": [
           "<rootDir>/stryker-tmp/"

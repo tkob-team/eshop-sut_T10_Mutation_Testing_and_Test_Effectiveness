@@ -5,22 +5,10 @@
   "mutate": [
     "server.js:355-492"
   ],
-  "jest": {
-    "config": {
-      "testEnvironment": "node",
-      "setupFiles": [
-        "<rootDir>/test/helpers/isolate.js"
-      ],
-      "testMatch": [
-        "**/test/coupons.test.js"
-      ],
-      "modulePathIgnorePatterns": [
-        "<rootDir>/stryker-tmp/"
-      ]
-    }
-  },
   "tempDirName": "stryker-tmp",
-  "concurrency": 1,
+  "concurrency": 2,
+  "timeoutMS": 5000,
+  "timeoutFactor": 1.5,
   "reporters": [
     "clear-text",
     "html",
@@ -31,6 +19,21 @@
   },
   "jsonReporter": {
     "fileName": "reports/coupons/mutation.json"
+  },
+  "jest": {
+    "config": {
+      "testEnvironment": "node",
+      "setupFiles": [
+        "<rootDir>/test/helpers/isolate.js"
+      ],
+      "testMatch": [
+        "**/test/coupons.test.js",
+        "**/test/coupons-flow.test.js"
+      ],
+      "modulePathIgnorePatterns": [
+        "<rootDir>/stryker-tmp/"
+      ],
+      "displayName": "cart-coupons"
+    }
   }
 }
-

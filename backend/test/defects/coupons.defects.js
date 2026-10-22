@@ -56,10 +56,16 @@ test.each(['list','create','delete'])('CD-06 ordinary user cannot %s coupons (FR
 });
 test.each([
   ['missing-code',{code:undefined}],
+  ['missing-type',{type:undefined}],
+  ['missing-discount',{discount_value:undefined}],
+  ['missing-minimum',{min_order_amount:undefined}],
+  ['missing-uses',{max_uses_per_user:undefined}],
   ['unknown-type',{type:'cashback'}],
   ['zero-discount',{discount_value:0}],
+  ['negative-discount',{discount_value:-1}],
   ['negative-minimum',{min_order_amount:-1}],
   ['zero-uses',{max_uses_per_user:0}],
+  ['negative-uses',{max_uses_per_user:-1}],
   ['missing-expiry',{expired_at:undefined}],
 ])('CD-07 admin validation: %s is refused without insertion (FR-17)', async (_name,invalid) => {
   const res = await h.request(app).post('/api/admin/coupons').set(h.bearer(admin))

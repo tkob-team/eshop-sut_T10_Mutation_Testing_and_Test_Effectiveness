@@ -2,9 +2,38 @@
   "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
   "testRunner": "jest",
   "coverageAnalysis": "perTest",
-  "mutate": ["server.js:280-349", "server.js:510-568"],
-  "reporters": ["clear-text", "progress", "html", "json"],
-  "htmlReporter": { "fileName": "reports/cart-orders/mutation.html" },
-  "jsonReporter": { "fileName": "reports/cart-orders/mutation.json" },
-  "tempDirName": "stryker-tmp"
+  "mutate": [
+    "server.js:280-349",
+    "server.js:510-568"
+  ],
+  "tempDirName": "stryker-tmp",
+  "concurrency": 2,
+  "timeoutMS": 5000,
+  "timeoutFactor": 1.5,
+  "reporters": [
+    "clear-text",
+    "html",
+    "json"
+  ],
+  "htmlReporter": {
+    "fileName": "reports/cart-orders/mutation.html"
+  },
+  "jsonReporter": {
+    "fileName": "reports/cart-orders/mutation.json"
+  },
+  "jest": {
+    "config": {
+      "testEnvironment": "node",
+      "setupFiles": [
+        "<rootDir>/test/helpers/isolate.js"
+      ],
+      "testMatch": [
+        "**/test/cart-orders.test.js"
+      ],
+      "modulePathIgnorePatterns": [
+        "<rootDir>/stryker-tmp/"
+      ],
+      "displayName": "cart-coupons"
+    }
+  }
 }
