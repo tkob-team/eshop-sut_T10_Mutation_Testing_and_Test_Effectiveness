@@ -12,7 +12,9 @@
     "tutorial:ai": "jest --config tutorial/jest.ai.config.cjs --runInBand",
     "tutorial:mutate:weak": "stryker run tutorial/stryker.weak.config.json",
     "tutorial:mutate:ai": "stryker run tutorial/stryker.ai.config.json",
-    "mutate:cart-orders": "stryker run stryker.cart-orders.config.json"
+    "mutate:cart-orders": "stryker run stryker.cart-orders.config.json",
+    "test:auth": "jest --config jest.auth.config.cjs --runInBand",
+    "test:defects:auth": "jest --config jest.auth-defects.config.cjs --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -32,15 +34,22 @@
     "supertest": "7.3.1"
   },
   "jest": {
-    "testEnvironment": "node",
-    "setupFiles": [
-      "<rootDir>/test/helpers/isolate.js"
-    ],
-    "testMatch": [
-      "<rootDir>/test/*.test.js"
-    ],
-    "modulePathIgnorePatterns": [
-      "<rootDir>/stryker-tmp/"
+    "projects": [
+      {
+        "testEnvironment": "node",
+        "setupFiles": [
+          "<rootDir>/test/helpers/isolate.js"
+        ],
+        "testMatch": [
+          "<rootDir>/test/cart-orders.test.js",
+          "<rootDir>/test/coupons.test.js"
+        ],
+        "modulePathIgnorePatterns": [
+          "<rootDir>/stryker-tmp/"
+        ],
+        "displayName": "cart-coupons"
+      },
+      "<rootDir>/jest.auth.config.cjs"
     ]
   },
   "allowScripts": {
