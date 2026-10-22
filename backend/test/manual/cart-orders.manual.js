@@ -16,6 +16,31 @@ beforeAll(async () => {
 describe('Cart & Orders Manual Tests - Tấn Hiệp', () => {
 
   /**
+   * Survivor 3
+   * Route: PUT /api/orders/:id/cancel
+   * Spec Reference: README.md § FR-10 & api_specification.md § 6.2
+   * Target Code: server.js:318-337 (Cancel order)
+   * Goal: Kill mutant không cập nhật status thành 'canceled' trong DB hoặc bỏ qua bước UPDATE.
+   */
+  test('Survivor 3: PUT /api/orders/:id/cancel - Verify pending order is cancelled and DB updated to canceled', async () => {
+    const user = await newUser(app);
+    // Tạo đơn hàng ở trạng thái 'pending'
+    const orderId = await createOrder(app, db, user.token, 'pending');
+
+    // 1. Thực hiện hủy đơn hàng
+    const resCancel = await request(app)
+      .put(`/api/orders/${orderId}/cancel`)
+      .set(bearer(user.token));
+
+    expect(resCancel.status).toBe(200);
+    expect(resCancel.body.message).toBe('Order canceled successfully');
+
+    // 2. Kiểm tra status trong DB đã chuyển sang 'canceled'
+    const dbStatus = await orderStatus(db, orderId);
+    expect(dbStatus).toBe('canceled');
+  });
+
+  /**
    * Target Mutant: 286:7 (ConditionalExpression Survived)
    * Route: GET /api/cart
    * Spec Reference: README.md § FR-07 & api_specification.md § 4.1
@@ -132,7 +157,7 @@ describe('Cart & Orders Manual Tests - Tấn Hiệp', () => {
   /**
    * Target Mutant: 346:45 (ObjectLiteral Survived)
    * Route: GET /api/orders/:id
-   * Spec Reference: README.md § FR-09 & api_specification.md § 4.5
+   * Spec Reference: README.md § FR-11 & api_specification.md § 4.5
    * Target Code: server.js:346
    * Goal: Kill mutant 346:45 bằng cách lấy chi tiết đơn hàng không tồn tại và assert chính xác
    *       body error { error: "Order not found" } thay vì chỉ check HTTP Status 404.
