@@ -21,7 +21,7 @@
     "tutorial:strong": "jest --config tutorial/jest.strong.config.cjs --runInBand",
     "tutorial:mutate:strong": "stryker run tutorial/stryker.strong.config.json",
     "test:auth:ai": "jest --config jest.auth.ai.config.cjs --runInBand",
-    "mutate:auth:ai": "stryker run stryker.auth.ai.config.json"
+    "mutate:auth:ai": "stryker run stryker.auth.ai.config.json",
     "test:auth:manual": "jest --config jest.auth.manual.config.cjs --runInBand",
     "mutate:auth:manual": "stryker run stryker.auth.manual.config.json"
   },
