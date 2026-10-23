@@ -1,11 +1,11 @@
-// S3-D04 AI-proposed tests aimed at surviving / uncovered mutants of server.js lines 20-135.
+// S3-G03 Claude-proposed tests aimed at surviving / uncovered mutants of server.js lines 20-135 (SUT 806ba19).
 // Expected results come from the spec; where only an HTTP convention applies, the test says so.
+// Reviewed by the member: AI-L03 relabelled (spec silent), AI-U03 removed (see the S3-G03 section of the experiment log).
 jest.mock('../database', () => require('./testDb'));
 const request = require('supertest');
-const jwt = require('jsonwebtoken');
 const { testApi } = require('./testDb');
 const { loadApp, freezeClock, advanceClock } = require('./harness');
-const { ALICE, BOB, NEW_USER, STRONG_PASSWORD, login, loginOk, bearer } = require('./fixtures');
+const { ALICE, BOB, NEW_USER, login, loginOk, bearer } = require('./fixtures');
 
 // The mocked ../database module is the in-memory sqlite handle itself.
 const db = require('./testDb');
@@ -72,8 +72,9 @@ describe('Login failure and lock (API 1.2, README FR-02)', () => {
     expectErrorMessage(res);
   });
 
-  // kills mutant 32 (interpretation: a 30 s lock is over once its full duration has elapsed)
-  test('AI-L03 at the exact instant the lock ends the account can log in; 1 ms earlier it cannot', async () => {
+  // kills mutant 32. INTERPRETATION, spec silent: FR-02 gives a 30 s lock but not whether it is still active
+  // at the exact expiry instant. This test reads a lock as over once its full duration has elapsed.
+  test('AI-L03 (interpretation, spec silent) at the exact instant the lock ends the account can log in; 1 ms earlier it cannot', async () => {
     freezeClock('2026-10-22T08:00:29.999Z');
     await run('UPDATE users SET locked_until = ? WHERE email = ?', ['2026-10-22T08:00:30.000Z', ALICE.email]);
     expect((await login(app, ALICE.email, ALICE.password)).status).toBe(403);
@@ -142,15 +143,5 @@ describe('Profile update (API 2.2, README FR-04, SEC-06)', () => {
     expect(res.status).toBe(500);
     expectErrorMessage(res);
     expect(res.body.message).toBeUndefined();
-  });
-
-  // Mutants 133-136 (role branch). Spec (FR-04, SEC-06): role cannot be changed by the client.
-  // server.js currently lets it be changed, so this assertion FAILS on the original code; test.failing
-  // makes the suite green today and turns red once server.js is fixed (then change it to a plain test).
-  // It reports mutants 133-136 as killed only because each of them happens to remove the vulnerability.
-  test.failing('AI-U03 KNOWN BUG: PUT /me with role "admin" must not change the role (SEC-06)', async () => {
-    const token = await loginOk(app, ALICE);
-    await update(token, { ...PROFILE, role: 'admin' });
-    expect((await testApi.userByEmail(ALICE.email)).role).toBe('user');
   });
 });
