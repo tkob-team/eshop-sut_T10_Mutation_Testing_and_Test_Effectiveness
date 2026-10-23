@@ -1,5 +1,4 @@
 // S3-D03 Authentication & Users: tests whose expected results come from the spec and that PASS on the
-// original code (this is the candidate baseline suite for S3-D04).
 // Spec sources: api_specification.md §1-2 ("API"), README.md FR-01..FR-04 and SEC-01..SEC-07 ("README").
 // Where the spec gives no status code, the test uses the HTTP convention and says so ("convention").
 jest.mock('../database', () => require('./testDb'));

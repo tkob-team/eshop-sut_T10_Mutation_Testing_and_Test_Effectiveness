@@ -1,4 +1,3 @@
-// S3-D03 Authentication & Users: spec-derived tests that FAIL on the original code. Each failure is a
 // documented original defect (code deviates from README.md / api_specification.md), not a wrong expected
 // value. Run with `npm run test:defects`. Not part of the baseline suite handed to S3-D04.
 jest.mock('../database', () => require('./testDb'));

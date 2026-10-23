@@ -1,6 +1,3 @@
-// S3-D02: original-code passing subset of README FR-09/FR-12/FR-17.
-// Values are literal spec-derived oracles, not copied from SUT responses.
-// No body/DB assertions are deliberately removed to manufacture survivors.
 const h = require('./helpers/coupons');
 let app, db, token, admin;
 beforeAll(async () => { ({ app, db } = await h.loadApp()); });
